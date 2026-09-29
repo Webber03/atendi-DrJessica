@@ -248,18 +248,13 @@ function getDateRangeForPeriod(period) {
 
 function setupNavigation() {
   const tabs = [
-    { navId: 'nav-dashboard', viewId: 'view-dashboard', name: 'Dashboard Analítico', subtitle: 'Acompanhamento comercial em tempo real' },
-    { navId: 'nav-launches', viewId: 'view-launches', name: 'Lançamentos Diários', subtitle: 'Preenchimento e envio de métricas de consultores' },
-    { navId: 'nav-records', viewId: 'view-records', name: 'Registros', subtitle: 'Consulta rápida dos últimos lançamentos' },
-    { navId: 'nav-settings', viewId: 'view-settings', name: 'Cadastros & Configurações', subtitle: 'Gerenciamento de equipes, consultores e canais de venda' },
-    { navId: 'nav-users', viewId: 'view-users', name: 'Usuários & Acessos', subtitle: 'Gerencie contas e níveis de permissão' },
-    { navId: 'nav-crm-clientes', viewId: 'view-crm-clientes', name: 'Busca & Tabulação de Clientes', subtitle: 'Localização de cadastros e histórico completo de atendimentos' },
     { navId: 'nav-crm-kanban-sdr', viewId: 'view-crm-kanban-sdr', name: 'Kanban SDR | Comercial', subtitle: 'Funil de qualificação e contatos iniciais' },
     { navId: 'nav-crm-kanban-closer', viewId: 'view-crm-kanban-closer', name: 'Kanban Consultor | Closer', subtitle: 'Gestão de negociações, consultoria e fechamentos com alerta de SLA' },
+    { navId: 'nav-crm-clientes', viewId: 'view-crm-clientes', name: 'Busca & Tabulação de Clientes', subtitle: 'Localização de cadastros e histórico completo de atendimentos' },
     { navId: 'nav-crm-relatorios', viewId: 'view-crm-relatorios', name: 'Relatórios CRM Analíticos', subtitle: 'Visão detalhada de perdas, prospecções, taxas de conversão e passagens SDR ➔ Closer' },
+    { navId: 'nav-users', viewId: 'view-users', name: 'Usuários & Acessos', subtitle: 'Gerencie contas e níveis de permissão' },
     { navId: 'nav-crm-admin', viewId: 'view-crm-admin', name: 'Admin CRM & Fila de Closers', subtitle: 'Configuração dinâmica de colunas, pesos da fila e discadora' },
-    { navId: 'nav-leads-dashboard', viewId: 'view-leads-dashboard', name: 'Dashboard de Leads', subtitle: 'Visão gerencial e ROI da Geração de Leads' },
-    { navId: 'nav-leads-records', viewId: 'view-leads-records', name: 'Geração de Leads', subtitle: 'Controle de performance da Geração de Leads' }
+    { navId: 'nav-whitelabel-settings', viewId: 'view-whitelabel-settings', name: 'Identidade Visual & Whitelabel', subtitle: 'Configurações de marca, nome, logo e pasta do Google Drive' }
   ];
 
   const perms = getPermissions();
@@ -278,14 +273,25 @@ function setupNavigation() {
     el.addEventListener('click', (e) => {
       e.preventDefault();
       const sectionName = section;
-      // Guard: double-check permission before switching
       if (!allowedSections.includes(sectionName)) {
         showToast('Você não tem permissão para acessar esta seção.', 'error');
         return;
       }
+      window.location.hash = sectionName;
       switchTab(sectionName);
     });
   });
+
+  const handleHash = () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && allowedSections.includes(hash)) {
+      switchTab(hash);
+    }
+  };
+  window.addEventListener('hashchange', handleHash);
+  if (window.location.hash) {
+    handleHash();
+  }
 }
 
 function switchTab(tabName) {
