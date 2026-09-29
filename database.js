@@ -6,16 +6,19 @@ function createPool() {
     ? { rejectUnauthorized: false }
     : false;
 
-  if (process.env.DATABASE_URL) {
-    return new Pool({ connectionString: process.env.DATABASE_URL, ssl });
+  const dbUrl = process.env.DATABASE_URL;
+  if (dbUrl) {
+    console.log('Conectando ao PostgreSQL via DATABASE_URL...');
+    return new Pool({ connectionString: dbUrl, ssl });
   }
 
+  console.log('DATABASE_URL não informada, utilizando parâmetros de DB individuais (DB_HOST, DB_USER, etc.)...');
   return new Pool({
-    host: process.env.DB_HOST,
+    host: process.env.DB_HOST || '172.17.0.1',
     port: parseInt(process.env.DB_PORT || '5432', 10),
-    user: process.env.DB_USER,
+    user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    database: process.env.DB_NAME || 'postgres',
     ssl
   });
 }
