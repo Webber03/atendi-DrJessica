@@ -254,7 +254,6 @@ function setupNavigation() {
     { navId: 'nav-crm-relatorios', viewId: 'view-crm-relatorios', name: 'Relatórios CRM Analíticos', subtitle: 'Visão detalhada de perdas, prospecções, taxas de conversão e passagens SDR ➔ Closer' },
     { navId: 'nav-users', viewId: 'view-users', name: 'Usuários & Acessos', subtitle: 'Gerencie contas e níveis de permissão' },
     { navId: 'nav-crm-admin', viewId: 'view-crm-admin', name: 'Admin CRM & Fila de Closers', subtitle: 'Configuração dinâmica de colunas, pesos da fila e discadora' },
-    { navId: 'nav-whitelabel-settings', viewId: 'view-whitelabel-settings', name: 'Identidade Visual & Whitelabel', subtitle: 'Configurações de marca, nome, logo e pasta do Google Drive' }
   ];
 
   const perms = getPermissions();

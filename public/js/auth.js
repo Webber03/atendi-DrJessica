@@ -11,7 +11,7 @@ const AUTH_USER_KEY  = 'crm_auth_user';
 // ----------------------------------------
 const ROLE_PERMISSIONS = {
   admin: {
-    nav: ['crm-kanban-sdr', 'crm-kanban-closer', 'crm-clientes', 'crm-relatorios', 'users', 'crm-admin', 'whitelabel-settings'],
+    nav: ['crm-kanban-sdr', 'crm-kanban-closer', 'crm-clientes', 'crm-relatorios', 'users', 'crm-admin'],
     canManageSettings: true,
     canViewAllTeams: true,
     canAccessLeads: true,
