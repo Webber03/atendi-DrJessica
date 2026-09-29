@@ -206,6 +206,50 @@ app.get('/api/auth/me', requireAuth, (req, res) => {
   res.json({ user: req.user });
 });
 
+// GET /api/whitelabel/config - Retorna a configuração de branding da empresa
+app.get('/api/whitelabel/config', async (req, res) => {
+  try {
+    const rows = await dbAll('SELECT key, value FROM system_settings WHERE key IN ($1, $2, $3, $4)', [
+      'company_name', 'company_logo_url', 'company_favicon_url', 'google_drive_folder_id'
+    ]);
+    const settings = {};
+    (rows || []).forEach(r => { settings[r.key] = r.value; });
+
+    res.json({
+      companyName: settings.company_name || process.env.COMPANY_NAME || 'Minha Empresa CRM',
+      companyLogo: settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.png',
+      companyFavicon: settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.png',
+      googleDriveFolderId: settings.google_drive_folder_id || process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || ''
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/whitelabel/config - Salva a configuração de branding da empresa (Admin)
+app.post('/api/whitelabel/config', requireAuth, requireRole('admin'), async (req, res) => {
+  const { companyName, companyLogo, companyFavicon, googleDriveFolderId } = req.body;
+  try {
+    const saveSetting = async (key, val) => {
+      if (val !== undefined && val !== null) {
+        await dbRun(
+          `INSERT INTO system_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+          [key, String(val)]
+        );
+      }
+    };
+
+    await saveSetting('company_name', companyName);
+    await saveSetting('company_logo_url', companyLogo);
+    await saveSetting('company_favicon_url', companyFavicon);
+    await saveSetting('google_drive_folder_id', googleDriveFolderId);
+
+    res.json({ message: 'Configurações de identidade e Whitelabel atualizadas com sucesso!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /api/auth/setup — Cria o primeiro usuário admin (protegido por token de setup)
 app.post('/api/auth/setup', async (req, res) => {
   const setupToken = process.env.ADMIN_SETUP_TOKEN;

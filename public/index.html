@@ -42,31 +42,6 @@
       </div>
       
       <nav class="sidebar-nav" id="sidebar-nav">
-        <a href="#dashboard" class="nav-item" id="nav-dashboard" data-section="dashboard">
-          <i data-lucide="layout-dashboard"></i>
-          <span>Dashboard</span>
-        </a>
-        <a href="#launches" class="nav-item" id="nav-launches" data-section="launches">
-          <i data-lucide="calendar-check"></i>
-          <span>Lançamentos Diários</span>
-        </a>
-        <a href="#records" class="nav-item" id="nav-records" data-section="records">
-          <i data-lucide="list-checks"></i>
-          <span>Registros</span>
-        </a>
-        <a href="#settings" class="nav-item" id="nav-settings" data-section="settings">
-          <i data-lucide="sliders"></i>
-          <span>Cadastros &amp; Configurações</span>
-        </a>
-        <a href="#users" class="nav-item" id="nav-users" data-section="users">
-          <i data-lucide="shield-check"></i>
-          <span>Usuários &amp; Acessos</span>
-        </a>
-        <div class="sidebar-divider" style="height: 1px; background: rgba(255,255,255,0.1); margin: 10px 20px;"></div>
-        <a href="#crm-clientes" class="nav-item" id="nav-crm-clientes" data-section="crm-clientes">
-          <i data-lucide="search"></i>
-          <span>Busca &amp; Tabulações</span>
-        </a>
         <a href="#crm-kanban-sdr" class="nav-item" id="nav-crm-kanban-sdr" data-section="crm-kanban-sdr">
           <i data-lucide="kanban"></i>
           <span>Kanban SDR | Comercial</span>
@@ -75,22 +50,26 @@
           <i data-lucide="layout-grid"></i>
           <span>Kanban Consultor | Closer</span>
         </a>
+        <a href="#crm-clientes" class="nav-item" id="nav-crm-clientes" data-section="crm-clientes">
+          <i data-lucide="search"></i>
+          <span>Busca &amp; Tabulações</span>
+        </a>
         <a href="#crm-relatorios" class="nav-item" id="nav-crm-relatorios" data-section="crm-relatorios">
           <i data-lucide="bar-chart-3"></i>
           <span>Relatórios</span>
+        </a>
+        <div class="sidebar-divider" style="height: 1px; background: rgba(255,255,255,0.1); margin: 10px 20px;"></div>
+        <a href="#users" class="nav-item" id="nav-users" data-section="users">
+          <i data-lucide="shield-check"></i>
+          <span>Usuários &amp; Acessos</span>
         </a>
         <a href="#crm-admin" class="nav-item" id="nav-crm-admin" data-section="crm-admin">
           <i data-lucide="settings-2"></i>
           <span>Admin CRM &amp; Fila</span>
         </a>
-        <div class="sidebar-divider" style="height: 1px; background: rgba(255,255,255,0.1); margin: 10px 20px;"></div>
-        <a href="#leads-dashboard" class="nav-item" id="nav-leads-dashboard" data-section="leads-dashboard">
-          <i data-lucide="bar-chart-2"></i>
-          <span>Dashboard Leads</span>
-        </a>
-        <a href="#leads-records" class="nav-item" id="nav-leads-records" data-section="leads-records">
-          <i data-lucide="filter"></i>
-          <span>Geração de Leads</span>
+        <a href="#whitelabel-settings" class="nav-item" id="nav-whitelabel-settings" data-section="whitelabel-settings">
+          <i data-lucide="palette"></i>
+          <span>Identidade &amp; Whitelabel</span>
         </a>
       </nav>
       
@@ -2289,6 +2268,60 @@
     </div>
   </div>
 
+
+
+  
+      <!-- VIEW: WHITELABEL & BRANDING SETTINGS -->
+      <section id="view-whitelabel-settings" class="view-section hidden">
+        <div class="card" style="max-width: 800px; margin: 30px auto;">
+          <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px;">
+              <i data-lucide="palette" style="color: #EAB308;"></i> Identidade Visual &amp; Whitelabel
+            </h2>
+            <p class="text-muted" style="font-size: 13px; margin-top: 4px;">Personalize o nome da empresa, logo, ícone e pasta do Google Drive desta instância Whitelabel.</p>
+          </div>
+
+          <form id="form-whitelabel-config" onsubmit="saveWhitelabelConfig(event)">
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="whitelabel-company-name" style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 8px; display: block;">
+                <i data-lucide="building-2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> Nome da Empresa (Branding)
+              </label>
+              <input type="text" id="whitelabel-company-name" class="form-input" placeholder="Ex: Educred, LF Promotora" required style="width: 100%; font-size: 14px; padding: 10px 14px;">
+              <small class="text-muted" style="font-size: 12px; margin-top: 4px; display: block;">Este nome será exibido na aba do navegador, tela de login e topo do painel.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="whitelabel-logo-url" style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 8px; display: block;">
+                <i data-lucide="image" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> URL da Logo da Empresa
+              </label>
+              <input type="text" id="whitelabel-logo-url" class="form-input" placeholder="Ex: assets/IMG_0457.png ou https://link.com/logo.png" required style="width: 100%; font-size: 14px; padding: 10px 14px;">
+              <small class="text-muted" style="font-size: 12px; margin-top: 4px; display: block;">Link ou caminho relativo da logo.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label for="whitelabel-favicon-url" style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 8px; display: block;">
+                <i data-lucide="bookmark" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> URL do Favicon (Ícone da Aba)
+              </label>
+              <input type="text" id="whitelabel-favicon-url" class="form-input" placeholder="Ex: assets/IMG_0457.png" required style="width: 100%; font-size: 14px; padding: 10px 14px;">
+              <small class="text-muted" style="font-size: 12px; margin-top: 4px; display: block;">Ícone exibido na aba do navegador.</small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label for="whitelabel-drive-folder-id" style="font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 8px; display: block;">
+                <i data-lucide="folder-git-2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> ID da Pasta Pai no Google Drive
+              </label>
+              <input type="text" id="whitelabel-drive-folder-id" class="form-input" placeholder="Ex: 1A2b3C4d5E6f7G8h9I0j" style="width: 100%; font-size: 14px; padding: 10px 14px;">
+              <small class="text-muted" style="font-size: 12px; margin-top: 4px; display: block;">ID da pasta pai no Google Drive onde os arquivos dos clientes serão salvos.</small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+              <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; font-weight: 600;">
+                <i data-lucide="check-circle-2"></i> Salvar Identidade Visual
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
 
 
   <!-- TOAST NOTIFICATION -->

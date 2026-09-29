@@ -353,6 +353,10 @@ function switchTab(tabName) {
     headerTitle.textContent = 'Usuários & Acessos';
     headerSubtitle.textContent = 'Gerencie contas e níveis de permissão';
     loadUsersTable();
+  } else if (tabName === 'whitelabel-settings') {
+    headerTitle.textContent = 'Identidade Visual & Whitelabel';
+    headerSubtitle.textContent = 'Configurações de marca, nome, logo e pasta do Google Drive';
+    loadWhitelabelConfigForm();
   } else if (tabName === 'leads-dashboard') {
     headerTitle.textContent = 'Dashboard Geração de Leads';
     headerSubtitle.textContent = 'Visão gerencial, eficiência e ROI';
@@ -3045,3 +3049,59 @@ window.editChannelMapping = editChannelMapping;
 window.initProgestorStatusMappingForm = initProgestorStatusMappingForm;
 
 
+
+
+// ----------------------------------------
+// Whitelabel & Branding Settings Handler
+// ----------------------------------------
+async function loadWhitelabelConfigForm() {
+  try {
+    const res = await fetch('/api/whitelabel/config');
+    if (!res.ok) return;
+    const config = await res.json();
+    
+    const nameEl = document.getElementById('whitelabel-company-name');
+    const logoEl = document.getElementById('whitelabel-logo-url');
+    const faviconEl = document.getElementById('whitelabel-favicon-url');
+    const driveEl = document.getElementById('whitelabel-drive-folder-id');
+
+    if (nameEl) nameEl.value = config.companyName || '';
+    if (logoEl) logoEl.value = config.companyLogo || '';
+    if (faviconEl) faviconEl.value = config.companyFavicon || '';
+    if (driveEl) driveEl.value = config.googleDriveFolderId || '';
+  } catch (err) {
+    console.error('Erro ao carregar configurações de Whitelabel:', err);
+  }
+}
+
+async function saveWhitelabelConfig(event) {
+  event.preventDefault();
+  const name = document.getElementById('whitelabel-company-name').value.trim();
+  const logo = document.getElementById('whitelabel-logo-url').value.trim();
+  const favicon = document.getElementById('whitelabel-favicon-url').value.trim();
+  const driveFolder = document.getElementById('whitelabel-drive-folder-id').value.trim();
+
+  try {
+    const res = await fetchWithAuth('/api/whitelabel/config', {
+      method: 'POST',
+      body: JSON.stringify({
+        companyName: name,
+        companyLogo: logo,
+        companyFavicon: favicon,
+        googleDriveFolderId: driveFolder
+      })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro ao salvar configurações');
+
+    showToast(data.message || 'Configurações salvas com sucesso!', 'success');
+    
+    // Atualiza branding na tela imediatamente sem precisar recarregar
+    if (typeof applyWhitelabelConfig === 'function') {
+      await applyWhitelabelConfig();
+    }
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
