@@ -295,15 +295,6 @@ async function createSchema() {
     ADD COLUMN IF NOT EXISTS canal_venda_id INTEGER REFERENCES channels(id) ON DELETE SET NULL
   `);
 
-  // Popula valor_contrato com o valor da última tabulação se estiver nulo (sintaxe correta do PostgreSQL sem alias no UPDATE)
-  await pool.query(`
-    UPDATE crm_clientes 
-    SET valor_contrato = (
-      SELECT valor FROM crm_tabulacoes WHERE cliente_id = crm_clientes.id AND valor > 0 ORDER BY created_at DESC LIMIT 1
-    )
-    WHERE valor_contrato IS NULL OR valor_contrato = 0
-  `);
-
   await pool.query(`
     CREATE TABLE IF NOT EXISTS crm_tabulacoes (
       id SERIAL PRIMARY KEY,
@@ -322,6 +313,19 @@ async function createSchema() {
     ALTER TABLE crm_tabulacoes ADD COLUMN IF NOT EXISTS valor DECIMAL(10,2) DEFAULT 0.00;
     ALTER TABLE crm_tabulacoes ADD COLUMN IF NOT EXISTS canal_venda_id INTEGER REFERENCES channels(id) ON DELETE SET NULL;
   `);
+
+  // Popula valor_contrato com o valor da última tabulação se estiver nulo
+  try {
+    await pool.query(`
+      UPDATE crm_clientes 
+      SET valor_contrato = (
+        SELECT valor FROM crm_tabulacoes WHERE cliente_id = crm_clientes.id AND valor > 0 ORDER BY created_at DESC LIMIT 1
+      )
+      WHERE valor_contrato IS NULL OR valor_contrato = 0
+    `);
+  } catch (err) {
+    console.log('Aviso ao atualizar valor_contrato em crm_clientes:', err.message);
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS crm_kanban_estagios (
