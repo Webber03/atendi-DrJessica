@@ -411,25 +411,41 @@ async function createSchema() {
     ADD COLUMN IF NOT EXISTS moved_to_stage_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   `);
   await pool.query(`
-    UPDATE crm_kanban_leads 
-    SET moved_to_stage_at = COALESCE(
-      (SELECT h.created_at FROM crm_kanban_historico h WHERE h.lead_id = crm_kanban_leads.id AND h.estagio_novo_id = crm_kanban_leads.estagio_id ORDER BY h.created_at DESC LIMIT 1),
-      transferido_closer_at, 
-      updated_at, 
-      created_at, 
-      CURRENT_TIMESTAMP
+    CREATE TABLE IF NOT EXISTS crm_kanban_historico (
+      id SERIAL PRIMARY KEY,
+      lead_id INTEGER NOT NULL REFERENCES crm_kanban_leads(id) ON DELETE CASCADE,
+      estagio_anterior_id INTEGER REFERENCES crm_kanban_estagios(id) ON DELETE SET NULL,
+      estagio_novo_id INTEGER REFERENCES crm_kanban_estagios(id) ON DELETE SET NULL,
+      usuario_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      observacao TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-    WHERE moved_to_stage_at IS NULL;
-
-    UPDATE crm_kanban_leads
-    SET transferido_closer_at = COALESCE(
-      (SELECT h.created_at FROM crm_kanban_historico h WHERE h.lead_id = crm_kanban_leads.id AND h.observacao LIKE '%transferido%' ORDER BY h.created_at DESC LIMIT 1),
-      created_at
-    )
-    WHERE closer_id IS NOT NULL AND (transferido_closer_at IS NULL OR (DATE(transferido_closer_at) = CURRENT_DATE AND DATE(created_at) < CURRENT_DATE AND id NOT IN (
-      SELECT h.lead_id FROM crm_kanban_historico h WHERE DATE(h.created_at) = CURRENT_DATE AND (h.observacao LIKE '%transferido%' OR h.observacao LIKE '%Transferido%')
-    )));
   `);
+
+  try {
+    await pool.query(`
+      UPDATE crm_kanban_leads 
+      SET moved_to_stage_at = COALESCE(
+        (SELECT h.created_at FROM crm_kanban_historico h WHERE h.lead_id = crm_kanban_leads.id AND h.estagio_novo_id = crm_kanban_leads.estagio_id ORDER BY h.created_at DESC LIMIT 1),
+        transferido_closer_at, 
+        updated_at, 
+        created_at, 
+        CURRENT_TIMESTAMP
+      )
+      WHERE moved_to_stage_at IS NULL;
+
+      UPDATE crm_kanban_leads
+      SET transferido_closer_at = COALESCE(
+        (SELECT h.created_at FROM crm_kanban_historico h WHERE h.lead_id = crm_kanban_leads.id AND h.observacao LIKE '%transferido%' ORDER BY h.created_at DESC LIMIT 1),
+        created_at
+      )
+      WHERE closer_id IS NOT NULL AND (transferido_closer_at IS NULL OR (DATE(transferido_closer_at) = CURRENT_DATE AND DATE(created_at) < CURRENT_DATE AND id NOT IN (
+        SELECT h.lead_id FROM crm_kanban_historico h WHERE DATE(h.created_at) = CURRENT_DATE AND (h.observacao LIKE '%transferido%' OR h.observacao LIKE '%Transferido%')
+      )));
+    `);
+  } catch (err) {
+    console.log('Aviso ao atualizar histórico de crm_kanban_leads:', err.message);
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS crm_leads_perdas (
@@ -442,18 +458,6 @@ async function createSchema() {
       observacao TEXT,
       usuario_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
       usuario_nome VARCHAR(255),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS crm_kanban_historico (
-      id SERIAL PRIMARY KEY,
-      lead_id INTEGER NOT NULL REFERENCES crm_kanban_leads(id) ON DELETE CASCADE,
-      estagio_anterior_id INTEGER REFERENCES crm_kanban_estagios(id) ON DELETE SET NULL,
-      estagio_novo_id INTEGER REFERENCES crm_kanban_estagios(id) ON DELETE SET NULL,
-      usuario_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      observacao TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
