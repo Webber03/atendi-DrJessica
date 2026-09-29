@@ -518,6 +518,18 @@ async function createSchema() {
     );
     console.log('[SEED] Criado usuário administrador padrão: admin / admin123');
   }
+
+  // Popular canais de venda padrão se a tabela channels estiver vazia
+  const channelsCount = await pool.query('SELECT COUNT(*) as total FROM channels');
+  if (parseInt(channelsCount.rows[0].total, 10) === 0) {
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('Discadora', 1)`);
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('WhatsApp', 1)`);
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('Instagram', 1)`);
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('Indicação', 1)`);
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('Site / Landing Page', 1)`);
+    await pool.query(`INSERT INTO channels (name, active) VALUES ('Google Ads', 1)`);
+    console.log('[SEED] Canais de venda padrão cadastrados.');
+  }
 }
 
 function validateDbConfig(env = process.env) {

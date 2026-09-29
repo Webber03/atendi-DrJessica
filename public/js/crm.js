@@ -1600,7 +1600,71 @@ async function loadCrmAdminData() {
   loadCrmAdminEstagios();
   loadCrmAdminFila();
   loadCrmAdminDiscadora();
+  loadCrmAdminCanais();
   checkDriveStatus();
+}
+
+async function loadCrmAdminCanais() {
+  const listEl = document.getElementById('list-crm-canais');
+  if (!listEl) return;
+
+  try {
+    const canais = await apiFetch('/api/channels');
+    if (!canais || !Array.isArray(canais) || canais.length === 0) {
+      listEl.innerHTML = '<li class="text-muted small">Nenhum canal cadastrado.</li>';
+      return;
+    }
+
+    listEl.innerHTML = canais.map(c => `
+      <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i data-lucide="radio" style="width: 15px; height: 15px; color: #38BDF8;"></i>
+          <span style="font-weight: 600; color: #fff; font-size: 13px;">${escapeHtml(c.name)}</span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-small" onclick="deleteCrmCanalVenda(${c.id})" title="Excluir Canal" style="padding: 4px 10px; background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25); color: #f87171;">
+          <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i> Excluir
+        </button>
+      </li>
+    `).join('');
+    if (window.lucide) lucide.createIcons();
+  } catch (err) {
+    listEl.innerHTML = `<li class="text-muted small">Erro ao carregar canais: ${err.message}</li>`;
+  }
+}
+
+async function addCrmCanalVenda(event) {
+  event.preventDefault();
+  const input = document.getElementById('input-crm-canal-nome');
+  if (!input || !input.value.trim()) return;
+
+  const name = input.value.trim();
+  try {
+    const res = await apiFetch('/api/channels', {
+      method: 'POST',
+      body: JSON.stringify({ name })
+    });
+    
+    if (res && res.error) throw new Error(res.error);
+    showToast('Canal de venda cadastrado com sucesso!', 'success');
+    input.value = '';
+    CrmState.channels = null; // Clear cached channels list
+    loadCrmAdminCanais();
+  } catch (err) {
+    showToast(err.message || 'Erro ao adicionar canal', 'error');
+  }
+}
+
+async function deleteCrmCanalVenda(id) {
+  if (!confirm('Deseja realmente remover este canal de venda?')) return;
+  try {
+    const res = await apiFetch(`/api/channels/${id}`, { method: 'DELETE' });
+    if (res && res.error) throw new Error(res.error);
+    showToast('Canal removido com sucesso!', 'success');
+    CrmState.channels = null; // Clear cached channels list
+    loadCrmAdminCanais();
+  } catch (err) {
+    showToast(err.message || 'Erro ao remover canal', 'error');
+  }
 }
 
 async function checkDriveStatus() {

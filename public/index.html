@@ -1678,6 +1678,31 @@
             </div>
           </div>
 
+          <!-- CANAIS DE VENDA (ORIGENS) -->
+          <div class="card form-card">
+            <div class="card-header">
+              <h2>Canais de Venda</h2>
+              <p class="text-muted small">Cadastre e gerencie os canais/origens de captação de clientes</p>
+            </div>
+            <form id="form-crm-canal-venda" class="settings-form" onsubmit="addCrmCanalVenda(event)">
+              <div class="form-group-vertical">
+                <label for="input-crm-canal-nome">Nome do Canal</label>
+                <input type="text" id="input-crm-canal-nome" class="form-input" placeholder="Ex: WhatsApp, Instagram, Discadora" required>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top: 8px;">
+                <i data-lucide="plus"></i> Cadastrar Canal
+              </button>
+            </form>
+
+            <hr class="card-divider">
+            <div class="list-wrapper">
+              <h3>Canais Ativos</h3>
+              <ul class="settings-list" id="list-crm-canais">
+                <!-- Preenchido via JS -->
+              </ul>
+            </div>
+          </div>
+
           <!-- MAPEAMENTO DISCADORA <-> CRM -->
           <div class="card form-card">
             <div class="card-header">
