@@ -506,6 +506,18 @@ async function createSchema() {
     await pool.query(`UPDATE crm_kanban_estagios SET motivos_perda = 'Desistência, Sem margem, Não atendeu consultoria' WHERE nome = 'CONSULTORIA' AND motivos_perda IS NULL`);
     await pool.query(`UPDATE crm_kanban_estagios SET motivos_perda = 'Proposta recusada, Margem estourada, Desistência' WHERE nome = 'PROPOSTA SISTEMA' AND motivos_perda IS NULL`);
   }
+
+  // Criar usuário admin inicial se a tabela users estiver vazia
+  const usersCount = await pool.query('SELECT COUNT(*) as total FROM users');
+  if (parseInt(usersCount.rows[0].total, 10) === 0) {
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash('admin123', 10);
+    await pool.query(
+      `INSERT INTO users (username, password_hash, role, name) VALUES ($1, $2, $3, $4)`,
+      ['admin', hash, 'admin', 'Administrador']
+    );
+    console.log('[SEED] Criado usuário administrador padrão: admin / admin123');
+  }
 }
 
 function validateDbConfig(env = process.env) {
