@@ -172,15 +172,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// GET /api/whitelabel/config — Configurações dinâmicas da marca (Whitelabel)
-app.get('/api/whitelabel/config', (req, res) => {
-  res.json({
-    companyName: process.env.COMPANY_NAME || 'Painel CRM',
-    companyLogo: process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg',
-    companyFavicon: process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg'
-  });
-});
-
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -236,10 +227,19 @@ app.get('/api/whitelabel/config', async (req, res) => {
     const settings = {};
     (rows || []).forEach(r => { settings[r.key] = r.value; });
 
+    let logo = settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg';
+    if (logo && logo.endsWith('.png')) {
+      logo = logo.replace(/\.png$/, '.jpg');
+    }
+    let favicon = settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg';
+    if (favicon && favicon.endsWith('.png')) {
+      favicon = favicon.replace(/\.png$/, '.jpg');
+    }
+
     res.json({
-      companyName: settings.company_name || process.env.COMPANY_NAME || 'Minha Empresa CRM',
-      companyLogo: settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg',
-      companyFavicon: settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg',
+      companyName: settings.company_name || process.env.COMPANY_NAME || 'Educred',
+      companyLogo: logo,
+      companyFavicon: favicon,
       googleDriveFolderId: settings.google_drive_folder_id || process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || ''
     });
   } catch (err) {
