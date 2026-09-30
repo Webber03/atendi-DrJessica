@@ -149,7 +149,6 @@ function requireAuthGuard() {
 const ROLE_LABELS = {
   admin: 'Administrador',
   supervisor: 'Supervisor de Equipe',
-  leads: 'Geração de Leads',
   sdr: 'SDR',
   closer: 'Consultor'
 };
