@@ -34,7 +34,8 @@ function toPgQuery(query, params) {
 function dbRun(query, params = []) {
   const [pgQuery, pgParams] = toPgQuery(query, params);
   const isInsert = /^\s*INSERT/i.test(query.trim());
-  const finalQuery = isInsert && !/RETURNING/i.test(pgQuery)
+  const isSystemSettings = /system_settings/i.test(query);
+  const finalQuery = (isInsert && !isSystemSettings && !/RETURNING/i.test(pgQuery))
     ? `${pgQuery} RETURNING id`
     : pgQuery;
 
