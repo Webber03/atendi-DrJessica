@@ -33,15 +33,26 @@ function initializeOAuthDrive(refreshToken) {
 }
 
 // Secundário: Função para inicializar o Drive com Service Account
-function initializeServiceAccountDrive() {
+function initializeServiceAccountDrive(customCredentials = null) {
   let credentials = null;
-  if (process.env.GOOGLE_DRIVE_CREDENTIALS) {
+
+  if (customCredentials) {
+    try {
+      credentials = typeof customCredentials === 'string' ? JSON.parse(customCredentials) : customCredentials;
+    } catch (err) {
+      console.error('Erro ao decodificar customCredentials fornecido:', err.message);
+    }
+  }
+
+  if (!credentials && process.env.GOOGLE_DRIVE_CREDENTIALS) {
     try {
       credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS);
     } catch (err) {
       console.error('Erro ao decodificar GOOGLE_DRIVE_CREDENTIALS:', err.message);
     }
-  } else {
+  }
+
+  if (!credentials) {
     const credentialsPath = path.join(__dirname, 'google-credentials.json');
     if (fs.existsSync(credentialsPath)) {
       try {
@@ -72,21 +83,31 @@ function initializeServiceAccountDrive() {
   return false;
 }
 
-// Inicializar Drive ao iniciar o servidor
-setTimeout(async () => {
+async function ensureDriveInitialized() {
+  if (drive) return drive;
   try {
-    // 1. Tentar inicializar com OAuth2 (se o refresh_token já estiver no banco)
     const row = await dbGet("SELECT value FROM system_settings WHERE key = 'google_drive_refresh_token'");
     if (row && row.value) {
       const ok = initializeOAuthDrive(row.value);
-      if (ok) return;
+      if (ok) return drive;
     }
-  } catch (err) {
-    console.error('Erro ao carregar refresh_token do banco:', err.message);
-  }
+  } catch (err) {}
 
-  // 2. Fallback: Tentar inicializar com Service Account
+  try {
+    const saRow = await dbGet("SELECT value FROM system_settings WHERE key = 'google_drive_service_account'");
+    if (saRow && saRow.value) {
+      const ok = initializeServiceAccountDrive(saRow.value);
+      if (ok) return drive;
+    }
+  } catch (err) {}
+
   initializeServiceAccountDrive();
+  return drive;
+}
+
+// Inicializar Drive ao iniciar o servidor
+setTimeout(async () => {
+  await ensureDriveInitialized();
 }, 2000); // Aguarda 2 segundos para dar tempo do banco de dados iniciar
 
 // Ajuste interno emergencial de lead: Atribuição da etiqueta de SDR Agatha Tito ao lead de LUIZ CLAUDIO RIBEIRO ALVES no Closer
@@ -3243,6 +3264,7 @@ app.post('/api/crm/leads/:id/documentos', requireAuth, (req, res, next) => {
     next();
   });
 }, async (req, res) => {
+  await ensureDriveInitialized();
   if (!drive) {
     return res.status(500).json({ error: 'Integração com Google Drive não está ativa ou configurada no servidor.' });
   }
@@ -3276,7 +3298,14 @@ app.post('/api/crm/leads/:id/documentos', requireAuth, (req, res, next) => {
     const cpfLimpo = sanitizeCpf(cliente.cpf);
     const cpfStr = cpfLimpo ? ` - ${cpfLimpo}` : '';
     const folderName = `${cliente.nome.trim().toUpperCase()}${cpfStr}`;
-    const parentFolderId = '1NYMMgTD7Tr3TCDQ1KzK12LJxH4RtEoqh';
+    
+    let parentFolderId = '19deq3We2qwm8_06hBsSYmPA-C9mJn7xk';
+    try {
+      const folderRow = await dbGet("SELECT value FROM system_settings WHERE key = 'google_drive_folder_id'");
+      if (folderRow && folderRow.value) {
+        parentFolderId = folderRow.value;
+      }
+    } catch (e) {}
 
     let folderId = cliente.drive_folder_id;
 
@@ -3409,6 +3438,7 @@ app.post('/api/crm/leads/:id/documentos', requireAuth, (req, res, next) => {
 
 // DELETE /api/crm/leads/:id/documentos/:docType — Excluir documento do Google Drive e do banco
 app.delete('/api/crm/leads/:id/documentos/:docType', requireAuth, async (req, res) => {
+  await ensureDriveInitialized();
   if (!drive) {
     return res.status(500).json({ error: 'Integração com Google Drive não está ativa ou configurada no servidor.' });
   }
@@ -3493,6 +3523,7 @@ app.delete('/api/crm/leads/:id/documentos/:docType', requireAuth, async (req, re
 
 // GET /api/crm/admin/drive-status — Verifica status da conexão com o Google Drive
 app.get('/api/crm/admin/drive-status', requireAuth, async (req, res) => {
+  await ensureDriveInitialized();
   if (!drive) {
     return res.json({ connected: false, error: 'Google Drive não configurado ou cliente não inicializado.' });
   }
@@ -3512,6 +3543,7 @@ app.get('/api/crm/admin/drive-status', requireAuth, async (req, res) => {
 
 // GET /api/crm/documentos/download/:fileId — Baixar arquivo do Google Drive
 app.get('/api/crm/documentos/download/:fileId', requireAuth, async (req, res) => {
+  await ensureDriveInitialized();
   if (!drive) {
     return res.status(500).json({ error: 'Integração com Google Drive não está ativa ou configurada no servidor.' });
   }
