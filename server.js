@@ -3541,6 +3541,56 @@ app.get('/api/crm/admin/drive-status', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/crm/auth/google/url — Gera URL de autorização OAuth2 do Google
+app.get('/api/crm/auth/google/url', requireAuth, (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/crm/auth/google/callback`;
+
+  if (!clientId || !clientSecret) {
+    return res.status(400).json({ error: 'GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET precisam estar configurados no .env da VPS.' });
+  }
+
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: ['https://www.googleapis.com/auth/drive']
+  });
+
+  res.json({ url });
+});
+
+// GET /api/crm/auth/google/callback — Callback de resposta OAuth2 do Google
+app.get('/api/crm/auth/google/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) {
+    return res.status(400).send('Código de autorização não fornecido.');
+  }
+
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/crm/auth/google/callback`;
+
+    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+    const { tokens } = await oauth2Client.getToken(code);
+
+    if (tokens.refresh_token) {
+      await dbRun(
+        "INSERT INTO system_settings (key, value) VALUES ('google_drive_refresh_token', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+        [tokens.refresh_token]
+      );
+      initializeOAuthDrive(tokens.refresh_token);
+    }
+
+    res.send('<div style="font-family:sans-serif; text-align:center; padding:50px;"><h2>✅ Conexão com o Google Drive realizada com sucesso!</h2><p>Você pode fechar esta aba e retornar ao CRM.</p></div>');
+  } catch (err) {
+    console.error('Erro no callback do Google OAuth2:', err.message);
+    res.status(500).send('Erro ao conectar com Google Drive: ' + err.message);
+  }
+});
+
 // GET /api/crm/documentos/download/:fileId — Baixar arquivo do Google Drive
 app.get('/api/crm/documentos/download/:fileId', requireAuth, async (req, res) => {
   await ensureDriveInitialized();
