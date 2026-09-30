@@ -176,8 +176,8 @@ app.use(express.json());
 app.get('/api/whitelabel/config', (req, res) => {
   res.json({
     companyName: process.env.COMPANY_NAME || 'Painel CRM',
-    companyLogo: process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpeg',
-    companyFavicon: process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpeg'
+    companyLogo: process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg',
+    companyFavicon: process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg'
   });
 });
 
@@ -238,8 +238,8 @@ app.get('/api/whitelabel/config', async (req, res) => {
 
     res.json({
       companyName: settings.company_name || process.env.COMPANY_NAME || 'Minha Empresa CRM',
-      companyLogo: settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpeg',
-      companyFavicon: settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpeg',
+      companyLogo: settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg',
+      companyFavicon: settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg',
       googleDriveFolderId: settings.google_drive_folder_id || process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || ''
     });
   } catch (err) {
