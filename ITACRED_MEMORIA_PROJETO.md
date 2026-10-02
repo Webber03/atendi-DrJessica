@@ -16,7 +16,8 @@ O arquivo `.env` foi configurado com os seguintes parâmetros:
 - **COMPANY_LOGO_URL**: `"assets/logo_itacred.jpg"`
 - **COMPANY_FAVICON_URL**: `"assets/favicon_itacred.jpg"`
 - **DATABASE_URL**: `"postgres://postgres:postgres@localhost:5432/crm_itacred_db"`
-- **GOOGLE_DRIVE_PARENT_FOLDER_ID**: `"id_da_pasta_itacred_no_google_drive"`
+- **GOOGLE_DRIVE_PARENT_FOLDER_ID**: `"11IlThCLIExkJmGGxuTpXIXqnLbm61TjY"`
+
 
 ---
 
