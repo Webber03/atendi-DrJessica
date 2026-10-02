@@ -237,7 +237,7 @@ app.get('/api/whitelabel/config', async (req, res) => {
     }
 
     res.json({
-      companyName: settings.company_name || process.env.COMPANY_NAME || 'Educred',
+      companyName: settings.company_name || process.env.COMPANY_NAME || 'ITACRED',
       companyLogo: logo,
       companyFavicon: favicon,
       googleDriveFolderId: settings.google_drive_folder_id || process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || ''
