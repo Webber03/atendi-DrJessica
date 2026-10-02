@@ -3299,7 +3299,7 @@ app.post('/api/crm/leads/:id/documentos', requireAuth, (req, res, next) => {
     const cpfStr = cpfLimpo ? ` - ${cpfLimpo}` : '';
     const folderName = `${cliente.nome.trim().toUpperCase()}${cpfStr}`;
     
-    let parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || '19deq3We2qwm8_06hBsSYmPA-C9mJn7xk';
+    let parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || '11IlThCLIExkJmGGxuTpXIXqnLbm61TjY';
     try {
       const folderRow = await dbGet("SELECT value FROM system_settings WHERE key = 'google_drive_folder_id'");
       if (folderRow && folderRow.value) {
