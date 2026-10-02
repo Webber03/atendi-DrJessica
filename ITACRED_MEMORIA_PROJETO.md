@@ -15,10 +15,10 @@ O arquivo `.env` foi configurado com os seguintes parâmetros:
 - **COMPANY_NAME**: `"ITACRED"`
 - **COMPANY_LOGO_URL**: `"assets/logo_itacred.jpg"`
 - **COMPANY_FAVICON_URL**: `"assets/favicon_itacred.jpg"`
-- **DATABASE_URL**: `"postgres://itacred:yyE8akX7cnsjRYDn@localhost:5432/itacred"`
-- **GOOGLE_DRIVE_PARENT_FOLDER_ID**: `"11IlThCLIExkJmGGxuTpXIXqnLbm61TjY"`
-- **APP_URL**: `"https://itacred.vps11814.panel.icontainer.work"`
+- **GOOGLE_CLIENT_ID**: Configurado via painel
+- **GOOGLE_CLIENT_SECRET**: Configurado via painel
 - **GOOGLE_REDIRECT_URI**: `"https://itacred.vps11814.panel.icontainer.work/api/crm/auth/google/callback"`
+- **APP_URL**: `"https://itacred.vps11814.panel.icontainer.work"`
 
 
 ---
