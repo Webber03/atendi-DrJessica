@@ -31,6 +31,9 @@ function createPool() {
 }
 
 const pool = createPool();
+pool.on('error', (err) => {
+  console.error('[PostgreSQL Pool Error]:', err.message);
+});
 
 function toPgQuery(query, params) {
   let index = 0;

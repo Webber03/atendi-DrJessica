@@ -29,7 +29,7 @@ Este repositório contém a aplicação CRM whitelabel configurada exclusivament
 - **Permissão**: `Super Usuário`
 - **String de Conexão (`DATABASE_URL`)**:
   ```env
-  DATABASE_URL="postgres://drjessica:6BP444fWNie7tm7S@localhost:5432/crm_drjessica_db"
+  DATABASE_URL="postgres://drjessica:6BP444fWNie7tm7S@172.17.0.1:5432/drjessica"
   ```
 
 ### Script de Criação no PostgreSQL:
@@ -58,7 +58,7 @@ GRANT ALL PRIVILEGES ON DATABASE crm_drjessica_db TO drjessica;
    COMPANY_NAME="Dra. Jéssica"
    COMPANY_LOGO_URL="assets/logo_drjessica.jpg"
    COMPANY_FAVICON_URL="assets/favicon_drjessica.jpg"
-   DATABASE_URL="postgres://drjessica:6BP444fWNie7tm7S@localhost:5432/crm_drjessica_db"
+   DATABASE_URL="postgres://drjessica:6BP444fWNie7tm7S@172.17.0.1:5432/drjessica"
    APP_URL="https://drjessica.vps11814.panel.icontainer.work"
    GOOGLE_REDIRECT_URI="https://drjessica.vps11814.panel.icontainer.work/api/crm/auth/google/callback"
    ```
