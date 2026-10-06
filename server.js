@@ -227,17 +227,17 @@ app.get('/api/whitelabel/config', async (req, res) => {
     const settings = {};
     (rows || []).forEach(r => { settings[r.key] = r.value; });
 
-    let logo = settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/IMG_0457.jpg';
+    let logo = settings.company_logo_url || process.env.COMPANY_LOGO_URL || 'assets/logo_drjessica.jpg';
     if (logo && logo.endsWith('.png')) {
       logo = logo.replace(/\.png$/, '.jpg');
     }
-    let favicon = settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/IMG_0457.jpg';
+    let favicon = settings.company_favicon_url || process.env.COMPANY_FAVICON_URL || 'assets/favicon_drjessica.jpg';
     if (favicon && favicon.endsWith('.png')) {
       favicon = favicon.replace(/\.png$/, '.jpg');
     }
 
     res.json({
-      companyName: settings.company_name || process.env.COMPANY_NAME || 'ITACRED',
+      companyName: settings.company_name || process.env.COMPANY_NAME || 'Dra. Jéssica',
       companyLogo: logo,
       companyFavicon: favicon,
       googleDriveFolderId: settings.google_drive_folder_id || process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || ''
