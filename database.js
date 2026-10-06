@@ -6,15 +6,22 @@ function createPool() {
     ? { rejectUnauthorized: false }
     : false;
 
-  const dbUrl = process.env.DATABASE_URL;
+  let dbUrl = process.env.DATABASE_URL;
   if (dbUrl) {
-    console.log('Conectando ao PostgreSQL via DATABASE_URL...');
+    const targetHost = process.env.DB_HOST || '172.17.0.1';
+    // Se DATABASE_URL contiver localhost ou 127.0.0.1, substitui pelo host de rede Docker (172.17.0.1 ou DB_HOST)
+    if (/@(localhost|127\.0\.0\.1):/.test(dbUrl)) {
+      dbUrl = dbUrl.replace(/@(localhost|127\.0\.0\.1):/, `@${targetHost}:`);
+    }
+    const maskedUrl = dbUrl.replace(/:[^:@]+@/, ':***@');
+    console.log(`Conectando ao PostgreSQL via DATABASE_URL (${maskedUrl})...`);
     return new Pool({ connectionString: dbUrl, ssl });
   }
 
-  console.log('DATABASE_URL não informada, utilizando parâmetros de DB individuais (DB_HOST, DB_USER, etc.)...');
+  const targetHost = process.env.DB_HOST || '172.17.0.1';
+  console.log(`DATABASE_URL não informada, utilizando parâmetros de DB individuais (host: ${targetHost}, DB_USER: ${process.env.DB_USER || 'postgres'})...`);
   return new Pool({
-    host: process.env.DB_HOST || '172.17.0.1',
+    host: targetHost,
     port: parseInt(process.env.DB_PORT || '5432', 10),
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
@@ -557,9 +564,23 @@ function validateDbConfig(env = process.env) {
   }
 }
 
-async function initDb() {
+async function initDb(retries = 10, delay = 3000) {
   validateDbConfig();
-  await pool.query('SELECT 1');
+  
+  for (let i = 1; i <= retries; i++) {
+    try {
+      await pool.query('SELECT 1');
+      console.log('Conexão com banco de dados PostgreSQL estabelecida com sucesso!');
+      break;
+    } catch (err) {
+      console.error(`[Tentativa ${i}/${retries}] Aguardando banco de dados (${err.message})...`);
+      if (i < retries) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
 
   if (process.env.DB_RESET === 'true') {
     console.log('DB_RESET=true: recriando tabelas do zero...');

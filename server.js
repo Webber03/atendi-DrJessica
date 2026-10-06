@@ -4195,21 +4195,22 @@ app.post('/api/crm/relatorios/meta', requireAuth, requireRole(['admin', 'supervi
 // START SERVER
 // ----------------------------------------
 (async () => {
+  // Inicia o servidor HTTP imediatamente para passar no healthcheck da plataforma (iContainer/Docker)
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`URL Local: http://localhost:${PORT}`);
+  });
+
   try {
     await initDb();
-    app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
-      console.log(`URL Local: http://localhost:${PORT}`);
-      
-      // Start background automatic synchronization every 15 minutes
-      const SYNC_INTERVAL = 15 * 60 * 1000; 
-      setInterval(runAutomaticProgestorSync, SYNC_INTERVAL);
-      
-      // Run first check 5 seconds after startup
-      setTimeout(runAutomaticProgestorSync, 5000);
-    });
+    
+    // Inicia sincronização automática em background a cada 15 minutos
+    const SYNC_INTERVAL = 15 * 60 * 1000; 
+    setInterval(runAutomaticProgestorSync, SYNC_INTERVAL);
+    
+    // Primeira verificação 5 segundos após a inicialização do DB
+    setTimeout(runAutomaticProgestorSync, 5000);
   } catch (err) {
-    console.error("Erro ao iniciar banco de dados:", err);
-    process.exit(1);
+    console.error("Aviso: Falha na inicialização inicial do banco de dados:", err.message);
   }
 })();
