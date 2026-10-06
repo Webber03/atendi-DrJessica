@@ -3110,3 +3110,31 @@ async function saveWhitelabelConfig(event) {
     showToast(err.message, 'error');
   }
 }
+
+async function saveWhitelabelDriveFolder() {
+  const driveEl = document.getElementById('whitelabel-drive-folder-id');
+  if (!driveEl) return;
+  const driveFolder = driveEl.value.trim();
+
+  try {
+    const res = await fetchWithAuth('/api/whitelabel/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        googleDriveFolderId: driveFolder
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro ao salvar ID da pasta');
+    showToast(data.message || 'ID da pasta do Google Drive salvo com sucesso!', 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// Carregar configuracao do formulario ao inicializar a pagina
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    loadWhitelabelConfigForm();
+  }, 1000);
+});
