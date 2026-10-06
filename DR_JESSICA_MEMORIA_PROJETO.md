@@ -60,6 +60,8 @@ GRANT ALL PRIVILEGES ON DATABASE crm_drjessica_db TO drjessica;
    COMPANY_FAVICON_URL="assets/favicon_drjessica.jpg"
    DATABASE_URL="postgres://drjessica:6BP444fWNie7tm7S@172.17.0.1:5432/drjessica"
    APP_URL="https://drjessica.vps11814.panel.icontainer.work"
+   GOOGLE_CLIENT_ID="seu_google_client_id.apps.googleusercontent.com"
+   GOOGLE_CLIENT_SECRET="seu_google_client_secret"
    GOOGLE_REDIRECT_URI="https://drjessica.vps11814.panel.icontainer.work/api/crm/auth/google/callback"
    ```
 
